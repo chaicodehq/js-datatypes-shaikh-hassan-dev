@@ -62,5 +62,127 @@
  *   // => { isValid: false, errors: { name: "...", email: "...", ... } }
  */
 export function validateForm(formData) {
-  // Your code here
+  const errors = {};
+
+  // 1. Name
+  const name = formData?.name ?? "";
+
+  if (
+    typeof name !== "string" ||
+    name.trim().length < 2 ||
+    name.trim().length > 50
+  ) {
+    errors.name = "Name must be 2-50 characters";
+  }
+
+  // 2. Email
+  const email = formData?.email ?? "";
+
+  const atIndex = typeof email === "string"
+    ? email.indexOf("@")
+    : -1;
+
+  const lastAtIndex = typeof email === "string"
+    ? email.lastIndexOf("@")
+    : -1;
+
+  const dotIndex = typeof email === "string"
+    ? email.indexOf(".", atIndex)
+    : -1;
+
+  if (
+    typeof email !== "string" ||
+    atIndex === -1 ||
+    atIndex !== lastAtIndex ||
+    dotIndex === -1
+  ) {
+    errors.email = "Invalid email format";
+  }
+
+  // 3. Phone
+  const phone = formData?.phone ?? "";
+
+  let validPhone = typeof phone === "string" && phone.length === 10;
+
+  if (validPhone) {
+    if (!"6789".includes(phone.charAt(0))) {
+      validPhone = false;
+    }
+
+    for (let i = 0; i < phone.length; i++) {
+      if (phone.charAt(i) < "0" || phone.charAt(i) > "9") {
+        validPhone = false;
+        break;
+      }
+    }
+  }
+
+  if (!validPhone) {
+    errors.phone = "Invalid Indian phone number";
+  }
+
+  // 4. Age
+  const rawAge = formData?.age;
+
+  let age;
+
+  if (typeof rawAge === "string") {
+    age = parseInt(rawAge, 10);
+  } else {
+    age = rawAge;
+  }
+
+  if (
+    isNaN(age) ||
+    !Number.isInteger(age) ||
+    age < 16 ||
+    age > 100
+  ) {
+    errors.age = "Age must be an integer between 16 and 100";
+  }
+
+  // 5. Pincode
+  const pincode = formData?.pincode ?? "";
+
+  let validPincode = (
+    typeof pincode === "string" &&
+    pincode.length === 6 &&
+    !pincode.startsWith("0")
+  );
+
+  if (validPincode) {
+    for (let i = 0; i < pincode.length; i++) {
+      if (pincode.charAt(i) < "0" || pincode.charAt(i) > "9") {
+        validPincode = false;
+        break;
+      }
+    }
+  }
+
+  if (!validPincode) {
+    errors.pincode = "Invalid Indian pincode";
+  }
+
+  // 6. State
+  const state = formData?.state ?? "";
+
+  if (
+    typeof state !== "string" ||
+    state.trim().length === 0
+  ) {
+    errors.state = "State is required";
+  }
+
+  // 7. Agree terms
+  if (!Boolean(formData?.agreeTerms)) {
+    errors.agreeTerms = "Must agree to terms";
+  }
+
+  // Final result
+  const isValid = Object.keys(errors).length === 0;
+
+  return {
+    isValid,
+    errors,
+  };
 }
